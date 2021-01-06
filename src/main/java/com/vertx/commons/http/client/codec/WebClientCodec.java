@@ -1,7 +1,7 @@
 package com.vertx.commons.http.client.codec;
 
 import com.vertx.commons.annotations.EventBusCodec;
-import com.vertx.commons.http.client.core.HttpClient;
+import com.vertx.commons.http.client.core.WebClient;
 
 import io.vertx.core.buffer.Buffer;
 import io.vertx.core.eventbus.MessageCodec;
@@ -10,26 +10,26 @@ import io.vertx.core.eventbus.MessageCodec;
  * @author Luiz Schmidt
  */
 @EventBusCodec
-public class RestClientCodec implements MessageCodec<HttpClient, HttpClient> {
+public class WebClientCodec implements MessageCodec<WebClient, WebClient> {
 
 	@Override
-	public void encodeToWire(Buffer buffer, HttpClient s) {
+	public void encodeToWire(Buffer buffer, WebClient s) {
 		//Nothing to do
 	}
 
 	@Override
-	public HttpClient decodeFromWire(int pos, Buffer buffer) {
+	public WebClient decodeFromWire(int pos, Buffer buffer) {
 		return null;
 	}
 
 	@Override
-	public HttpClient transform(HttpClient s) {
+	public WebClient transform(WebClient s) {
 		return s;
 	}
 
 	@Override
 	public String name() {
-		return HttpClient.codec();
+		return WebClient.codec();
 	}
 
 	@Override

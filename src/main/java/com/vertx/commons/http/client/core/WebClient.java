@@ -19,18 +19,17 @@ import io.vertx.core.json.JsonArray;
 import io.vertx.core.json.JsonObject;
 import io.vertx.ext.web.client.HttpRequest;
 import io.vertx.ext.web.client.HttpResponse;
-import io.vertx.ext.web.client.WebClient;
 
 /**
  * @author Luiz Schmidt
  */
-public class HttpClient {
+public class WebClient {
 
   private static final String DEFAULT_ENCODING = "UTF-8";
   private static final String DEFAULT_CONTENT_TYPE = "application/json";
   private static final int DEFAULT_HTTP_PORT = 443;
 
-  private WebClient client;
+  private io.vertx.ext.web.client.WebClient client;
   private JsonObject config;
 
   private String host;
@@ -40,7 +39,7 @@ public class HttpClient {
 
   private JsonArray pathParams;
 
-  public HttpClient(WebClient client, JsonObject jsonConfig) {
+  public WebClient(io.vertx.ext.web.client.WebClient client, JsonObject jsonConfig) {
     this.config = jsonConfig.copy();
     this.client = client;
 
@@ -123,18 +122,18 @@ public class HttpClient {
 
   private static Future<HttpResponse<Buffer>> send(HttpRequest<Buffer> clientRequest, WebRequest request) {
     switch (request.getBodyType()) {
-    case NO_BODY:
-      return clientRequest.send();
-    case JSON:
-      return clientRequest.sendJson(request.getBody());
-    case BUFFER:
-      return clientRequest.sendBuffer(request.getBody());
-    case FORM:
-      return clientRequest.sendForm(request.getFormBody());
-    case MULTIPART_FORM:
-      return clientRequest.sendMultipartForm(request.getMultipartFormBody());
-    default:
-      return Future.failedFuture(new IllegalArgumentException("Unexpected value: " + request.getBodyType()));
+      case NO_BODY:
+        return clientRequest.send();
+      case JSON:
+        return clientRequest.sendJson(request.getBody());
+      case BUFFER:
+        return clientRequest.sendBuffer(request.getBody());
+      case FORM:
+        return clientRequest.sendForm(request.getFormBody());
+      case MULTIPART_FORM:
+        return clientRequest.sendMultipartForm(request.getMultipartFormBody());
+      default:
+        return Future.failedFuture(new IllegalArgumentException("Unexpected value: " + request.getBodyType()));
     }
   }
 
