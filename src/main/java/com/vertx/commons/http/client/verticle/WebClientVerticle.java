@@ -42,12 +42,12 @@ public class WebClientVerticle extends BaseVerticle {
     if (this.clients.containsKey(clientName)) {
       message.reply(this.clients.get(clientName), options);
     } else {
-      message.fail(904, "Not found client web as '" + clientName + "'");
+      message.fail(0, "Not found client web as '" + clientName + "'");
     }
   }
 
   private void instanceHttpClientFromConfig() {
-    JsonObject httpClientList = config();
+    JsonObject httpClientList = config().getJsonObject("clients");
     for (String name : httpClientList.fieldNames()) {
       JsonObject config = httpClientList.getJsonObject(name);
       JsonObject options = httpClientList.getJsonObject("options");
@@ -55,7 +55,8 @@ public class WebClientVerticle extends BaseVerticle {
       if (options == null) {
         this.clients.put(name, new WebClient(io.vertx.ext.web.client.WebClient.create(vertx), config));
       } else {
-        this.clients.put(name, new WebClient(io.vertx.ext.web.client.WebClient.create(vertx, new WebClientOptions(options)), config));
+        this.clients.put(name,
+            new WebClient(io.vertx.ext.web.client.WebClient.create(vertx, new WebClientOptions(options)), config));
       }
 
       log.info("[web client] " + name + " created.");
