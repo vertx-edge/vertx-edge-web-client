@@ -1,10 +1,21 @@
-package com.vertx.commons.web.client.verticle;
+/*
+ * Vert.x Edge, open source.
+ * Copyright (C) 2020-2021 Vert.x Edge
+ *
+ * All rights reserved. This program and the accompanying materials
+ * are made available under the terms of the Eclipse Public License v1.0
+ * which accompanies this distribution, and is available at
+ * http://www.eclipse.org/legal/epl-v10.html
+ *
+ * SPDX-License-Identifier: Apache-2.0
+ */
+package com.vertx.edge.web.client.verticle;
 
 import java.util.HashMap;
 import java.util.Map;
 
-import com.vertx.commons.verticle.BaseVerticle;
-import com.vertx.commons.web.client.core.WebClient;
+import com.vertx.edge.verticle.BaseVerticle;
+import com.vertx.edge.web.client.core.WebClient;
 
 import io.vertx.core.eventbus.DeliveryOptions;
 import io.vertx.core.eventbus.Message;

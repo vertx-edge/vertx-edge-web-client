@@ -1,12 +1,23 @@
-package com.vertx.commons.web.client.core;
+/*
+ * Vert.x Edge, open source.
+ * Copyright (C) 2020-2021 Vert.x Edge
+ *
+ * All rights reserved. This program and the accompanying materials
+ * are made available under the terms of the Eclipse Public License v1.0
+ * which accompanies this distribution, and is available at
+ * http://www.eclipse.org/legal/epl-v10.html
+ *
+ * SPDX-License-Identifier: Apache-2.0
+ */
+package com.vertx.edge.web.client.core;
 
 import java.util.Map.Entry;
 import java.util.Objects;
 
-import com.vertx.commons.utils.Timer;
-import com.vertx.commons.web.client.dto.WebRequest;
-import com.vertx.commons.web.client.dto.WebResponse;
-import com.vertx.commons.web.client.dto.WebResponse.WebResponseBuilder;
+import com.vertx.edge.utils.Timer;
+import com.vertx.edge.web.client.dto.WebRequest;
+import com.vertx.edge.web.client.dto.WebResponse;
+import com.vertx.edge.web.client.dto.WebResponse.WebResponseBuilder;
 
 import io.netty.handler.codec.http.HttpClientCodec;
 import io.vertx.core.AsyncResult;
@@ -61,21 +72,21 @@ public class WebClient {
 
   public Future<WebResponse> send(WebRequest request) {
     HttpRequest<Buffer> clientRequest = this.client.request(method, this.port, this.host, this.resource);
-    clientRequest.timeout(request.getTimeout());
+    clientRequest.timeout(request.timeout());
 
     if (pathParams != null) {
       for (int i = 0; i < pathParams.size(); i++) {
         String param = pathParams.getString(i);
-        Object value = request.getPathParams().getValue(param);
+        Object value = request.pathParams().getValue(param);
         Objects.requireNonNull(value, "The PathParam is required: " + param);
         resource = this.resource.replaceAll("(\\{" + param + "\\})", value.toString());
       }
     }
 
-    for (Entry<String, Object> param : request.getQueryParams())
+    for (Entry<String, Object> param : request.queryParams())
       clientRequest.addQueryParam(param.getKey(), param.getValue() != null ? param.getValue().toString() : "");
 
-    for (Entry<String, Object> header : request.getHeaders())
+    for (Entry<String, Object> header : request.headers())
       clientRequest.putHeader(header.getKey(), header.getValue() != null ? header.getValue().toString() : "");
 
     WebResponseBuilder response = WebResponse.builder();
@@ -121,19 +132,19 @@ public class WebClient {
   }
 
   private static Future<HttpResponse<Buffer>> send(HttpRequest<Buffer> clientRequest, WebRequest request) {
-    switch (request.getBodyType()) {
+    switch (request.bodyType()) {
       case NO_BODY:
         return clientRequest.send();
       case JSON:
-        return clientRequest.sendJson(request.getBody());
+        return clientRequest.sendJson(request.body());
       case BUFFER:
-        return clientRequest.sendBuffer(request.getBody());
+        return clientRequest.sendBuffer(request.body());
       case FORM:
-        return clientRequest.sendForm(request.getFormBody());
+        return clientRequest.sendForm(request.formBody());
       case MULTIPART_FORM:
-        return clientRequest.sendMultipartForm(request.getMultipartFormBody());
+        return clientRequest.sendMultipartForm(request.multipartFormBody());
       default:
-        return Future.failedFuture(new IllegalArgumentException("Unexpected value: " + request.getBodyType()));
+        return Future.failedFuture(new IllegalArgumentException("Unexpected value: " + request.bodyType()));
     }
   }
 
