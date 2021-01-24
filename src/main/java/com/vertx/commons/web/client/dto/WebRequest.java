@@ -1,6 +1,6 @@
-package com.vertx.commons.http.client.dto;
+package com.vertx.commons.web.client.dto;
 
-import com.vertx.commons.http.client.enumeration.BodyType;
+import com.vertx.commons.web.client.enumeration.BodyType;
 
 import io.vertx.core.MultiMap;
 import io.vertx.core.buffer.Buffer;

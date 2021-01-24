@@ -1,4 +1,4 @@
-package com.vertx.commons.http.client.dto;
+package com.vertx.commons.web.client.dto;
 
 import io.vertx.core.buffer.Buffer;
 import io.vertx.ext.web.client.HttpResponse;

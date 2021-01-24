@@ -1,7 +1,7 @@
-package com.vertx.commons.http.client.service;
+package com.vertx.commons.web.client.service;
 
-import com.vertx.commons.http.client.core.WebClient;
-import com.vertx.commons.http.client.verticle.WebClientVerticle;
+import com.vertx.commons.web.client.core.WebClient;
+import com.vertx.commons.web.client.verticle.WebClientVerticle;
 
 import io.vertx.core.Future;
 import io.vertx.core.Promise;

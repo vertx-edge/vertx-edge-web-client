@@ -1,7 +1,7 @@
-package com.vertx.commons.http.client.codec;
+package com.vertx.commons.web.client.codec;
 
 import com.vertx.commons.annotations.EventBusCodec;
-import com.vertx.commons.http.client.core.WebClient;
+import com.vertx.commons.web.client.core.WebClient;
 
 import io.vertx.core.buffer.Buffer;
 import io.vertx.core.eventbus.MessageCodec;

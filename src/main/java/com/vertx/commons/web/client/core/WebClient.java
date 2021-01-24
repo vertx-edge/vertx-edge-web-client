@@ -1,12 +1,12 @@
-package com.vertx.commons.http.client.core;
+package com.vertx.commons.web.client.core;
 
 import java.util.Map.Entry;
 import java.util.Objects;
 
-import com.vertx.commons.http.client.dto.WebRequest;
-import com.vertx.commons.http.client.dto.WebResponse;
-import com.vertx.commons.http.client.dto.WebResponse.WebResponseBuilder;
 import com.vertx.commons.utils.Timer;
+import com.vertx.commons.web.client.dto.WebRequest;
+import com.vertx.commons.web.client.dto.WebResponse;
+import com.vertx.commons.web.client.dto.WebResponse.WebResponseBuilder;
 
 import io.netty.handler.codec.http.HttpClientCodec;
 import io.vertx.core.AsyncResult;

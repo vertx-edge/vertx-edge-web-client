@@ -1,12 +1,11 @@
-package com.vertx.commons.http.client.verticle;
+package com.vertx.commons.web.client.verticle;
 
 import java.util.HashMap;
 import java.util.Map;
 
-import com.vertx.commons.http.client.core.WebClient;
 import com.vertx.commons.verticle.BaseVerticle;
+import com.vertx.commons.web.client.core.WebClient;
 
-import io.vertx.core.Promise;
 import io.vertx.core.eventbus.DeliveryOptions;
 import io.vertx.core.eventbus.Message;
 import io.vertx.core.json.JsonObject;
@@ -24,16 +23,10 @@ public class WebClientVerticle extends BaseVerticle {
   private Map<String, WebClient> clients = new HashMap<>();
 
   @Override
-  protected Promise<Void> up() {
+  protected void up() {
     Thread.currentThread().setName("web-client");
-
     this.instanceHttpClientFromConfig();
-
-    Promise<Void> promise = Promise.promise();
     vertx.eventBus().<String>consumer(ADDRESS, this::getHttpClient);
-    promise.complete();
-
-    return promise;
   }
 
   private void getHttpClient(Message<String> message) {
