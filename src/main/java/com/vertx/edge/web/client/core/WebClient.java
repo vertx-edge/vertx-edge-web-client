@@ -72,21 +72,21 @@ public class WebClient {
 
   public Future<WebResponse> send(WebRequest request) {
     HttpRequest<Buffer> clientRequest = this.client.request(method, this.port, this.host, this.resource);
-    clientRequest.timeout(request.timeout());
+    clientRequest.timeout(request.getTimeout());
 
     if (pathParams != null) {
       for (int i = 0; i < pathParams.size(); i++) {
         String param = pathParams.getString(i);
-        Object value = request.pathParams().getValue(param);
+        Object value = request.getPathParams().getValue(param);
         Objects.requireNonNull(value, "The PathParam is required: " + param);
         resource = this.resource.replaceAll("(\\{" + param + "\\})", value.toString());
       }
     }
 
-    for (Entry<String, Object> param : request.queryParams())
+    for (Entry<String, Object> param : request.getQueryParams())
       clientRequest.addQueryParam(param.getKey(), param.getValue() != null ? param.getValue().toString() : "");
 
-    for (Entry<String, Object> header : request.headers())
+    for (Entry<String, Object> header : request.getHeaders())
       clientRequest.putHeader(header.getKey(), header.getValue() != null ? header.getValue().toString() : "");
 
     WebResponseBuilder response = WebResponse.builder();
@@ -95,18 +95,32 @@ public class WebClient {
 
     send(clientRequest, request).onComplete(res -> {
       timer.end();
-      response.elapsedTime(timer.getTimeMillis());
-      response.request(request);
-      response.response(res.result());
+      response.elapsedTime(timer.getTimeMillis()).request(request).response(res.result());
       if (res.succeeded()) {
-        response.httpCode(res.result().statusCode());
-        response.message(buildSuccessMessage(res.result(), timer));
+        response.httpCode(res.result().statusCode()).message(buildSuccessMessage(res.result(), timer));
         promise.complete(response.build());
       } else {
         promise.fail(buildErrorMessage(res.cause(), timer));
       }
     });
     return promise.future();
+  }
+
+  private static Future<HttpResponse<Buffer>> send(HttpRequest<Buffer> clientRequest, WebRequest request) {
+    switch (request.getBodyType()) {
+      case NO_BODY:
+        return clientRequest.send();
+      case JSON:
+        return clientRequest.sendJson(request.getBody());
+      case BUFFER:
+        return clientRequest.sendBuffer(request.getBody());
+      case FORM:
+        return clientRequest.sendForm(request.getFormBody());
+      case MULTIPART_FORM:
+        return clientRequest.sendMultipartForm(request.getMultipartFormBody());
+      default:
+        return Future.failedFuture(new IllegalArgumentException("Unexpected value: " + request.getBodyType()));
+    }
   }
 
   private String buildSuccessMessage(HttpResponse<Buffer> response, Timer timer) {
@@ -130,24 +144,7 @@ public class WebClient {
     sb.append(" | time elapsed: ").append(timer);
     return sb.toString();
   }
-
-  private static Future<HttpResponse<Buffer>> send(HttpRequest<Buffer> clientRequest, WebRequest request) {
-    switch (request.bodyType()) {
-      case NO_BODY:
-        return clientRequest.send();
-      case JSON:
-        return clientRequest.sendJson(request.body());
-      case BUFFER:
-        return clientRequest.sendBuffer(request.body());
-      case FORM:
-        return clientRequest.sendForm(request.formBody());
-      case MULTIPART_FORM:
-        return clientRequest.sendMultipartForm(request.multipartFormBody());
-      default:
-        return Future.failedFuture(new IllegalArgumentException("Unexpected value: " + request.bodyType()));
-    }
-  }
-
+  
   public static String codec() {
     return HttpClientCodec.class.getName();
   }

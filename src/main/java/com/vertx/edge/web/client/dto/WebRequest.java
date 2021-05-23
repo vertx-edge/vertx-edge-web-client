@@ -24,7 +24,7 @@ import lombok.experimental.Accessors;
 
 @Data
 @Builder
-@Accessors(fluent = true)
+@Accessors(chain = true)
 public class WebRequest {
 
   private final BodyType bodyType;
@@ -44,8 +44,6 @@ public class WebRequest {
   private JsonObject pathParams = new JsonObject();
   
   public static class WebRequestBuilder {
-    private Buffer body;
-    private BodyType bodyType;
     
     public WebRequestBuilder body(String body) {
       this.body = new BufferImpl().appendString(body);
