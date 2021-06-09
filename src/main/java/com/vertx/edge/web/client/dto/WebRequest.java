@@ -19,47 +19,58 @@ import io.vertx.core.buffer.impl.BufferImpl;
 import io.vertx.core.json.JsonObject;
 import io.vertx.ext.web.multipart.MultipartForm;
 import lombok.Builder;
-import lombok.Data;
+import lombok.Getter;
+import lombok.Setter;
 import lombok.experimental.Accessors;
 
-@Data
-@Builder
+@Getter
+@Setter
 @Accessors(chain = true)
 public class WebRequest {
 
-  private final BodyType bodyType;
+  private BodyType bodyType = BodyType.NO_BODY;
   @Builder.ObtainVia(method = "bodyWithJson")
   private Buffer body;
   private MultiMap formBody;
   private MultipartForm multipartFormBody;
-  
-  private long timeout;
+
+  private Long timeout;
   private String encoding;
-  
-  @Builder.Default
+
   private JsonObject headers = new JsonObject();
-  @Builder.Default
   private JsonObject queryParams = new JsonObject();
-  @Builder.Default
   private JsonObject pathParams = new JsonObject();
+
+  public WebRequest addPathParam(String key, Object value) {
+    this.pathParams.put(key, value);
+    return this;
+  }
   
-  public static class WebRequestBuilder {
-    
-    public WebRequestBuilder body(String body) {
-      this.body = new BufferImpl().appendString(body);
-      this.bodyType = BodyType.BUFFER;
-      return this;
-    }
-    
-    public WebRequestBuilder body(JsonObject body) {
-      this.body = body.getBuffer("UTF-8");
-      return this;
-    }
-    
-    public WebRequestBuilder body(Buffer body) {
-      this.body = body;
-      this.bodyType = BodyType.BUFFER;
-      return this;
-    }
+  public WebRequest addQueryParam(String key, Object value) {
+    this.queryParams.put(key, value);
+    return this;
+  }
+  
+  public WebRequest addHeader(String key, Object value) {
+    this.headers.put(key, value);
+    return this;
+  }
+  
+  public WebRequest setBody(String body) {
+    this.body = new BufferImpl().appendString(body);
+    this.bodyType = BodyType.BUFFER;
+    return this;
+  }
+
+  public WebRequest setBody(JsonObject body) {
+    this.body = body.toBuffer();
+    this.bodyType = BodyType.JSON;
+    return this;
+  }
+
+  public WebRequest setBody(Buffer body) {
+    this.body = body;
+    this.bodyType = BodyType.BUFFER;
+    return this;
   }
 }

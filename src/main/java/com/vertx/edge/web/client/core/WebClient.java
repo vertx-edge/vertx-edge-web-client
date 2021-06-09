@@ -39,7 +39,9 @@ public class WebClient {
   private static final String DEFAULT_ENCODING = "UTF-8";
   private static final String DEFAULT_CONTENT_TYPE = "application/json";
   private static final int DEFAULT_HTTP_PORT = 443;
+  private static final int DEFAULT_TIMEOUT = 30_000;
 
+  
   private io.vertx.ext.web.client.WebClient client;
   private JsonObject config;
 
@@ -50,8 +52,8 @@ public class WebClient {
 
   private JsonArray pathParams;
 
-  public WebClient(io.vertx.ext.web.client.WebClient client, JsonObject jsonConfig) {
-    this.config = jsonConfig.copy();
+  public WebClient(io.vertx.ext.web.client.WebClient client, JsonObject configJson) {
+    this.config = configJson.copy();
     this.client = client;
 
     this.host = config.getString("hostname");
@@ -72,7 +74,11 @@ public class WebClient {
 
   public Future<WebResponse> send(WebRequest request) {
     HttpRequest<Buffer> clientRequest = this.client.request(method, this.port, this.host, this.resource);
-    clientRequest.timeout(request.getTimeout());
+    if(request.getTimeout() != null) {
+      clientRequest.timeout(request.getTimeout());
+    }else {
+      clientRequest.timeout(config.getInteger("timeout", DEFAULT_TIMEOUT));
+    }
 
     if (pathParams != null) {
       for (int i = 0; i < pathParams.size(); i++) {
@@ -100,7 +106,7 @@ public class WebClient {
         response.httpCode(res.result().statusCode()).message(buildSuccessMessage(res.result(), timer));
         promise.complete(response.build());
       } else {
-        promise.fail(buildErrorMessage(res.cause(), timer));
+        promise.tryFail(buildErrorMessage(res.cause(), timer));
       }
     });
     return promise.future();

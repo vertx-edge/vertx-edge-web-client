@@ -17,16 +17,17 @@ import com.vertx.edge.web.client.verticle.WebClientVerticle;
 import io.vertx.core.Future;
 import io.vertx.core.Promise;
 import io.vertx.core.Vertx;
+import io.vertx.core.eventbus.ReplyException;
+import io.vertx.core.eventbus.ReplyFailure;
+import lombok.AccessLevel;
+import lombok.NoArgsConstructor;
 
 /**
  * @author Luiz Schmidt
  */
+@NoArgsConstructor(access = AccessLevel.PRIVATE)
 public final class WebClientService {
 
-  private WebClientService() {
-    //nothing to do
-  }
-  
   public static Future<WebClient> getClient(Vertx vertx, String name) {
     Promise<WebClient> promise = Promise.promise();
     vertx.eventBus().<WebClient>request(WebClientVerticle.ADDRESS, name).onSuccess(client -> {
@@ -34,8 +35,14 @@ public final class WebClientService {
         promise.fail("No match Web Client: " + name + " reason -> client is null");
       else
         promise.complete(client.body());
-    }).onFailure(cause -> promise
-        .fail("No one verticle response for address: " + WebClientVerticle.ADDRESS + " reason -> " + cause));
+    }).onFailure(cause -> {
+      if (cause instanceof ReplyException && ((ReplyException) cause).failureType() == ReplyFailure.NO_HANDLERS) {
+        promise.fail(
+            "To use WebClientService requires the \"web-client.clients\" to be configured in the deploy-strategy file.");
+      } else {
+        promise.fail("No one verticle response for address: " + WebClientVerticle.ADDRESS + " reason -> " + cause);
+      }
+    });
     return promise.future();
   }
 }

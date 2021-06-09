@@ -23,29 +23,29 @@ import io.vertx.core.eventbus.MessageCodec;
 @EventBusCodec
 public class WebClientCodec implements MessageCodec<WebClient, WebClient> {
 
-	@Override
-	public void encodeToWire(Buffer buffer, WebClient s) {
-		//Nothing to do
-	}
+  @Override
+  public void encodeToWire(Buffer buffer, WebClient s) {
+    // Nothing to do
+  }
 
-	@Override
-	public WebClient decodeFromWire(int pos, Buffer buffer) {
-		return null;
-	}
+  @Override
+  public WebClient decodeFromWire(int pos, Buffer buffer) {
+    return null;
+  }
 
-	@Override
-	public WebClient transform(WebClient s) {
-		return s;
-	}
+  @Override
+  public WebClient transform(WebClient s) {
+    return s;
+  }
 
-	@Override
-	public String name() {
-		return WebClient.codec();
-	}
+  @Override
+  public String name() {
+    return WebClient.codec();
+  }
 
-	@Override
-	public byte systemCodecID() {
-		return -1;
-	}
+  @Override
+  public byte systemCodecID() {
+    return -1;
+  }
 
 }

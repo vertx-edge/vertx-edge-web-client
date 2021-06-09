@@ -13,12 +13,14 @@ package com.vertx.edge.web.client.verticle;
 
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Objects;
 
 import com.vertx.edge.verticle.BaseVerticle;
 import com.vertx.edge.web.client.core.WebClient;
 
 import io.vertx.core.eventbus.DeliveryOptions;
 import io.vertx.core.eventbus.Message;
+import io.vertx.core.json.JsonArray;
 import io.vertx.core.json.JsonObject;
 import io.vertx.ext.web.client.WebClientOptions;
 import lombok.extern.log4j.Log4j2;
@@ -35,9 +37,11 @@ public class WebClientVerticle extends BaseVerticle {
 
   @Override
   protected void up() {
+    String threadName = Thread.currentThread().getName();
     Thread.currentThread().setName("web-client");
     this.instanceHttpClientFromConfig();
     vertx.eventBus().<String>consumer(ADDRESS, this::getHttpClient);
+    Thread.currentThread().setName(threadName);
   }
 
   private void getHttpClient(Message<String> message) {
@@ -51,19 +55,29 @@ public class WebClientVerticle extends BaseVerticle {
   }
 
   private void instanceHttpClientFromConfig() {
-    JsonObject httpClientList = config().getJsonObject("clients");
-    for (String name : httpClientList.fieldNames()) {
-      JsonObject config = httpClientList.getJsonObject(name);
-      JsonObject options = httpClientList.getJsonObject("options");
+    JsonArray httpClientList = config().getJsonArray("clients");
+    Objects.requireNonNull(httpClientList, "web-client' must contain the 'clients' element");
 
+    httpClientList.stream().map(JsonObject.class::cast).forEach(client -> {
+      String name = client.getString("name");
+      Objects.requireNonNull(name, "One of the 'web-client.clients' elements has the 'name' property null or not declared.");
+      createInstanceWebClient(client, name);
+    });
+  }
+
+  private void createInstanceWebClient(JsonObject client, String name) {
+    try {
+      JsonObject options = client.getJsonObject("options");
+ 
       if (options == null) {
-        this.clients.put(name, new WebClient(io.vertx.ext.web.client.WebClient.create(vertx), config));
+        this.clients.put(name, new WebClient(io.vertx.ext.web.client.WebClient.create(vertx), client));
       } else {
-        this.clients.put(name,
-            new WebClient(io.vertx.ext.web.client.WebClient.create(vertx, new WebClientOptions(options)), config));
+        this.clients.put(name, new WebClient(io.vertx.ext.web.client.WebClient.create(vertx, new WebClientOptions(options)), client));
       }
-
-      log.info("[web client] " + name + " created.");
+ 
+      log.info("[web client] '{}' created.", name);
+    }catch(RuntimeException e) {
+      throw new IllegalArgumentException("[web client] Error on creating '"+name+"': "+e.getMessage(), e);
     }
   }
 }
